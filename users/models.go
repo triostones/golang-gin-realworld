@@ -26,6 +26,18 @@ func (u *UserModel) setPassword(password string) error {
 
 }
 
+func (u *UserModel) checkPassword(password string) error {
+	bytePassword := []byte(password)
+	byteHashPassword := []byte(u.PasswordHash)
+	return bcrypt.CompareHashAndPassword(byteHashPassword, bytePassword)
+}
+
+func (model *UserModel) Update(data interface{}) error {
+	db := common.GetDB()
+	err := db.Model(model).Update(data).Error
+	return err
+}
+
 func AutoMigrate() {
 	db := common.Init()
 	db.AutoMigrate(&UserModel{})
@@ -35,4 +47,11 @@ func SaveOne(data interface{}) error {
 	db := common.GetDB()
 	err := db.Save(data).Error
 	return err
+}
+
+func FindOneUser(condition interface{}) (UserModel, error) {
+	db := common.GetDB()
+	var model UserModel
+	err := db.Where(condition).First(&model).Error
+	return model, err
 }

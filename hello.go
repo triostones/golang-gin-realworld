@@ -33,6 +33,11 @@ func main() {
 
 	v1 := r.Group("/api")
 	users.UsersRegister(v1.Group("/users"))
+	// v1.Use(users.AuthMiddleware(false))  TODO: articles
+
+	v1.Use(users.AuthMiddleware(true))
+	users.UserRegister(v1.Group("/user"))
+	// TODO: profile
 
 	r.Run()
 }
