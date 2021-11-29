@@ -31,7 +31,7 @@ func (self *UserSerializer) Response() UserResponse {
 }
 
 type ProfileSerializer struct {
-	c *gin.Context
+	C *gin.Context
 	UserModel
 }
 
@@ -44,7 +44,7 @@ type ProfileResponse struct {
 }
 
 func (self *ProfileSerializer) Response() ProfileResponse {
-	myUserModel := self.c.MustGet("my_user_model").(UserModel)
+	myUserModel := self.C.MustGet("my_user_model").(UserModel)
 	profile := ProfileResponse{
 		ID: self.ID,
 		Username: self.Username,
