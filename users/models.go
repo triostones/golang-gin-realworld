@@ -2,6 +2,8 @@ package users
 
 import (
 	"errors"
+
+	"github.com/jinzhu/gorm"
 	"github.com/triostones/golang-gin-realworld/common"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -38,9 +40,49 @@ func (model *UserModel) Update(data interface{}) error {
 	return err
 }
 
+func (u UserModel) following(v UserModel) error {
+	db := common.GetDB()
+	var follow FollowModel
+	err := db.FirstOrCreate(
+		&follow,
+		&FollowModel{
+			FollowingID:  v.ID,
+			FollowedByID: u.ID,
+		}).Error
+	return err
+}
+
+func (u UserModel) isFollowing(v UserModel) bool {
+	db := common.GetDB()
+	var follow FollowModel
+	db.Where(FollowModel{
+		FollowingID:  v.ID,
+		FollowedByID: u.ID,
+	}).First(&follow)
+	return follow.ID != 0
+}
+
+func (u UserModel) unFollowing(v UserModel) error {
+	db := common.GetDB()
+	err := db.Where(FollowModel{
+		FollowingID:  v.ID,
+		FollowedByID: u.ID,
+	}).Delete(FollowModel{}).Error
+	return err
+}
+
+type FollowModel struct {
+	gorm.Model
+	Following    UserModel
+	FollowingID  uint
+	FollowedBy   UserModel
+	FollowedByID uint
+}
+
 func AutoMigrate() {
 	db := common.Init()
 	db.AutoMigrate(&UserModel{})
+	db.AutoMigrate(&FollowModel{})
 }
 
 func SaveOne(data interface{}) error {

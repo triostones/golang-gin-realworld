@@ -37,7 +37,7 @@ func main() {
 
 	v1.Use(users.AuthMiddleware(true))
 	users.UserRegister(v1.Group("/user"))
-	// TODO: profile
+	users.ProfileRegister(v1.Group("/profiles"))
 
 	r.Run()
 }
