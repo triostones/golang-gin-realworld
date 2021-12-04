@@ -49,6 +49,12 @@ type ArticleModel struct {
 	Comments    []CommentModel `gorm:"ForeignKey:ArticleID"`
 }
 
+func (model *ArticleModel) Update(data interface{}) error {
+	db := common.GetDB()
+	err := db.Model(model).Update(data).Error
+	return err
+}
+
 func (model *ArticleModel) setTags(tags []string) error {
 	db := common.GetDB()
 	var tagList []TagModel
@@ -96,4 +102,16 @@ func SaveOne(data interface{}) error {
 	db := common.GetDB()
 	err := db.Save(data).Error
 	return err
+}
+
+func FindOneArticle(condition interface{}) (ArticleModel, error) {
+	db := common.GetDB()
+	var model ArticleModel
+	tx := db.Begin()
+	tx.Where(condition).First(&model)
+	tx.Model(&model).Related(&model.Author, "Author")
+	tx.Model(&model.Author).Related(&model.Author.UserModel)
+	tx.Model(&model).Related(&model.Tags, "Tags")
+	err := tx.Commit().Error
+	return model, err
 }

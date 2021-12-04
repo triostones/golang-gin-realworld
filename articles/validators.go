@@ -35,3 +35,14 @@ func (s *ArticleModelValidator) Bind(c *gin.Context) error {
 func NewArticleModelValidator() ArticleModelValidator {
 	return ArticleModelValidator{}
 }
+
+func NewArticleModelValidatorFillWith(articleModel ArticleModel) ArticleModelValidator {
+	articleModelValidator := NewArticleModelValidator()
+	articleModelValidator.Article.Title = articleModel.Title
+	articleModelValidator.Article.Description = articleModel.Description
+	articleModelValidator.Article.Body = articleModel.Body
+	for _, tagModel := range articleModel.Tags {
+		articleModelValidator.Article.Tags = append(articleModelValidator.Article.Tags, tagModel.Tag)
+	}
+	return articleModelValidator
+}
