@@ -22,6 +22,17 @@ func ArticleCreate(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"article": serializer.Response()})
 }
 
+func ArticleRetrive(c *gin.Context) {
+	slug := c.Param("slug")
+	articleModel, err := FindOneArticle(&ArticleModel{Slug: slug})
+	if err != nil {
+		c.JSON(http.StatusNotFound, common.NewError("articles", errors.New("Invalid slug")))
+		return
+	}
+	serializer := ArticleSerializer{c, articleModel}
+	c.JSON(http.StatusOK, gin.H{"article": serializer.Response()})
+}
+
 func ArticleUpdate(c *gin.Context) {
 	slug := c.Param("slug")
 	articleModel, err := FindOneArticle(&ArticleModel{Slug: slug})
@@ -50,5 +61,6 @@ func ArticlesRegister(router *gin.RouterGroup) {
 }
 
 func ArticlesAnonymousRegister(router *gin.RouterGroup) {
+	router.GET("/:slug", ArticleRetrive)
 	// TODO:
 }
